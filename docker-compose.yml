@@ -1,0 +1,29 @@
+# Spins up a local Oracle Database XE instance for development, matching the
+# credentials expected by backend/src/main/resources/application-oracle.properties:
+#   URL:      jdbc:oracle:thin:@//localhost:1521/XEPDB1
+#   User:     ecommerce
+#   Password: ecommerce
+#
+# First startup takes a few minutes while Oracle initializes its data files.
+# Watch progress with: docker compose logs -f oracle
+# It's ready when you see "DATABASE IS READY TO USE!" in the logs.
+services:
+  oracle:
+    image: gvenzl/oracle-xe:21-slim
+    container_name: ecommerce-oracle
+    environment:
+      ORACLE_PASSWORD: system_root_pw
+      APP_USER: ecommerce
+      APP_USER_PASSWORD: ecommerce
+    ports:
+      - "1521:1521"
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+
+volumes:
+  oracle-data:
